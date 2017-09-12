@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+#oralce db
+druid:
+  driver-class-name: oracle.jdbc.OracleDriver
+  url: jdbc:oracle:thin:@114.112.254.10:1521:hkdb06
+  username: damon
+  password: damon000
+  initialSize: 5                                        #初始化连接大小
+  minIdle: 5                                            #连接池最小空闲
+  maxActive: 20                                         #连接池最大使用连接数量
+  maxWait: 60000                                        #获取连接最大等待时间
+  minEvictableIdleTimeMillis: 300000                    #配置一个连接在池中最小生存的时间，单位是毫秒
+  timeBetweenEvictionRunsMillis: 60000                  #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+
+mybatis:
+  type-aliases-package: com.gmh.cjcx.entity
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        var content = "测试\n" +
+            "收银员:1001\n" +
+            "NO.0006201708210023  SDFS\n" +
+            "2017.08.21 18:53\n" +
+            "--------------------------------\n" +
+            "品名            单价 数量   小计\n" +
+            "积木乐园30元/次\n" +
+            "               30.00 1.00  30.00\n" +
+            "--------------------------------\n" +
+            "数    量:1.00     总    计:30.00\n" +
+            "现金:30.00\n" +
+            "找零金额:-5.00\n"+
+            "总计 :25";
+        content = content.replace(/(\n|\r\n)+/g,'TT');
+        function rules(rules){
+            var tmpc = content;
+            var rulesArr = rules.split(";");
+            for (var i = 0; i < rulesArr.length; i++) {
+                var rule = rulesArr[i];
+                console.log(rule);
+
+                var regexArr = rule.split("_");
+                var index = regexArr[0];
+                var start = regexArr[1];
+                var end = regexArr[2];
+                //console.log(start + end);
+
+                var sRE = new RegExp(start, "g");
+                tmpc = tmpc.replace(sRE, '(FF)');
+                start="(FF)";
+
+                if (end != "") {
+                    var eRE = new RegExp(end, "g");
+                    tmpc = tmpc.replace(eRE, '(EE)');
+                    end = "(EE)";
+                } else {
+                    end = "TT";
+                }
+
+                console.log(tmpc);
+
+                var result = getContent(tmpc, index, start, end);
+                if(result != undefined){
+                    return result;
+                }
+            }
+        }
+
+
+        function regexs(r, regexs){
+            var regexArr = regexs.split(";");
+            for (var i =0; i< regexArr.length; i++){
+                var regex = regexArr[i];
+                var reg = regex.split("_");
+                if(reg[0] == "P") {
+                    debugger;
+                   var pattern = new RegExp(reg[1], "g");
+                   var rarr = r.match(pattern);
+                   r = rarr[reg[2]];
+                } else if(reg[0] == "C"){
+                   var carr =  r.split(reg[1]);
+                   r = carr[reg[2]];
+                } else if(reg[0] == "R"){
+                    var pattern = new RegExp(reg[1]);
+                    r = r.replace(pattern, "");
+                }
+            }
+            r = r.trim();
+            return r;
+        }
+
+
+
+        function getContent(str,index,from,to){
+            if(str.substring(str.length-2) != "TT"){
+                str = str + "TT";
+            }
+            var flagFrom = 1;
+            var fromIndex;
+            while(str.indexOf(from) > -1){//如果找到数据
+                if (flagFrom != index){//
+                    str = str.replace(from,"");
+                }else{
+                    fromIndex = str.indexOf(from);//获取字符串所在的位置
+                    str = str.replace(from,"FF");
+                }
+                flagFrom = flagFrom + 1;//指针+1
+            }
+            from = "FF";
+            var flagTo = 1;
+            //to = "TT";
+            var toIndex = str.indexOf(to,fromIndex);
+            if (toIndex > 0){
+                str = str.substring(fromIndex,toIndex + to.length);
+            }
+
+            str = encodeURI(str);
+            from = encodeURI(from);
+            to = encodeURI(to);
+            var regStr = from + "(.*)" + to;
+            var reg = new RegExp(regStr);
+
+            str.match(reg);
+            if (reg.test(str)){
+                var result = reg.exec(str);
+                decodeURI(result[0].replace(/(^\s*)|(\s*$)/g,''));
+                decodeURI(result[1].replace(/(^\s*)|(\s*$)/g,''));
+                if (result && result.length >= index){
+                    debugger;
+                    return decodeURI(result[1].replace(/(^\s*)|(\s*$)/g,'').replace("TT",""));
+                }
+            }
+        }
+
+
+        /*var r = rules('1_NO.\\s*_');
+        var d =regexs(r, 'P_\\s?\\w+_1');
+        console.log(d);*/
+
+       /* var r = rules('2_总\\s*计\\s*[:：]_');
+
+        var eeRE = new RegExp(/aa/g);
+        content = "aabb ccdd aabb ccdd";
+        content = content.replace(eeRE,"aaaa");
+        console.log(r);*/
+
+
+        setTimeRange(2);
+        function  setTimeRange (v) {
+            var fmt = 'YYYY-MM-DD HH:mm';
+            var now = new Date();
+            var end = new Date();
+            if(v == 0){
+
+            } else if(v == 1){
+
+            } else if(v == 2){
+                //昨日
+                now.setDate(now.getDate() - 1);
+                end.setDate(end.getDate() - 1);
+            } else if(v == 3){
+                //本周
+                var nowDayOfWeek = now.getDay() ; //今天本周的第几天
+                if(nowDayOfWeek == 0) {
+                    nowDayOfWeek = 6;	//周日
+                } else {
+                    nowDayOfWeek = nowDayOfWeek - 1;
+                }
+                now.setDate(now.getDate() - nowDayOfWeek);
+                end.setDate(now.getDate() + 6);
+            } else if(v == 4){
+                //上周
+                var nowDayOfWeek = now.getDay() ; //今天本周的第几天
+                if(nowDayOfWeek == 0) {
+                    nowDayOfWeek = 6;	//周日
+                } else {
+                    nowDayOfWeek = nowDayOfWeek - 1;
+                }
+
+                now.setDate(now.getDate() - nowDayOfWeek - 7);
+                end.setDate(now.getDate() + 6);
+            } else if(v == 5){
+                //本月
+                now.setDate(1);
+
+                var nextMonth = end.getMonth() + 1;
+                var nextMonthFirstDay=new Date(end.getFullYear(), nextMonth,1);
+                var oneDay= 1000 * 60 * 60 * 24;
+                end = new Date(nextMonthFirstDay-oneDay);
+            } else if(v == 6){
+                //上月
+                var nextMonth = now.getMonth() - 1;
+                now.setMonth(nextMonth);
+                now.setDate(1);
+
+                nextMonth = nextMonth + 1;
+                var nextMonthFirstDay= new Date(end.getFullYear(),nextMonth, 1);
+                var oneDay= 1000 * 60 * 60 * 24;
+                end = new Date(nextMonthFirstDay-oneDay);
+            }
+
+            now.setHours(0);
+            now.setMinutes(0);
+            now.setSeconds(0);
+
+            end.setHours(23);
+            end.setMinutes(59);
+            end.setSeconds(59);
+
+            console.log(now + ':' + end);
+        }
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
