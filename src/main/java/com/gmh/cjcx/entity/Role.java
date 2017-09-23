@@ -1,24 +1,20 @@
 package com.gmh.cjcx.entity;
 
-import java.io.Serializable;
-
 import com.gmh.framework.orm.BaseEntity;
 
-/**
- * <p>
- * <p>
- * </p>
- *
- * @author Guominghua
- * @since 2017-08-15
- */
-public class Role extends BaseEntity {
+import java.io.Serializable;
 
-    private static final long serialVersionUID = 1L;
+public class Role extends BaseEntity implements Serializable{
+    /**
+     * 生成的serialVersionUID
+     */
+    private static final long serialVersionUID = 4896534789126078526L;
 
     private Integer id;
+
     private String name;
-    private String remark;
+
+    private String type;
 
     public Integer getId() {
         return id;
@@ -33,23 +29,14 @@ public class Role extends BaseEntity {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name == null ? null : name.trim();
     }
 
-    public String getRemark() {
-        return remark;
+    public String getType() {
+        return type;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", name=" + name +
-                ", remark=" + remark +
-                "}";
+    public void setType(String type) {
+        this.type = type == null ? null : type.trim();
     }
 }

@@ -34,8 +34,7 @@ public class RequestUtil {
 
 		httpURLConnection.setRequestProperty("accept", "*/*");
 		httpURLConnection.setRequestProperty("connection", "Keep-Alive");
-		httpURLConnection.setRequestProperty("Accept",
-				"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+		httpURLConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
 		httpURLConnection.setRequestProperty("User-Agent",
 				"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
 		return httpURLConnection;

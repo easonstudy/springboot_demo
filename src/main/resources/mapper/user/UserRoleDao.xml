@@ -1,0 +1,17 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gmh.cjcx.dao.UserRoleDao">
+
+	<sql id="BASE_COLUMN" >
+		id, uid, rid
+	</sql>
+
+	<select id="findById" resultType="UserRole" parameterType="java.lang.Integer" >
+		select
+		<include refid="BASE_COLUMN" />
+		from t_user_role
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+</mapper>
