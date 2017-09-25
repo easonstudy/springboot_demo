@@ -1,5 +1,6 @@
 package com.gmh.cjcx.controller;
 
+import com.gmh.framework.annotation.CheckPermission;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class TestController {
 
+    @CheckPermission
     @GetMapping("/hello")
     String test(HttpServletRequest request) {
         //逻辑处理

@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -172,11 +174,15 @@ public class ShiroConfiguration implements EnvironmentAware {
         // 未授权界面;
         factoryBean.setUnauthorizedUrl("/403");
 
-
-
         loadShiroFilterChain(factoryBean);
-        logger.info("shiro拦截器工厂类注入成功");
+        logger.info("注入shiro拦截器工厂类");
 
+        Map<String, Filter> filetersMap = new HashMap<String, Filter>();
+
+        /*MyFormAuthenticationFilter myFormAuthenticationFilter = new MyFormAuthenticationFilter();
+        filetersMap.put("authc", myFormAuthenticationFilter);
+        factoryBean.setFilters(filetersMap);
+        logger.info("注入shiro自定义过滤器");*/
 
         return factoryBean;
     }
@@ -197,7 +203,7 @@ public class ShiroConfiguration implements EnvironmentAware {
         //authc: 所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问
         filterChainMap.put("/permission/userInsert", "anon");
         filterChainMap.put("/error", "anon");
-        filterChainMap.put("/tUser/insert","anon");
+        //filterChainMap.put("/tUser/insert","anon");
         filterChainMap.put("/gif/getGifCode","anon");
         filterChainMap.put("/**", "authc");
         //使用记住我可以访问的地址替换上面的，当没有记住我时跳转登录页面，记住我时跳到正常页面

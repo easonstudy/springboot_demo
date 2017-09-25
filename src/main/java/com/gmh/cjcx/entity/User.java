@@ -49,6 +49,10 @@ public class User implements Serializable{
         this.email = email == null ? null : email.trim();
     }
 
+    public void setPswd(String pswd) {
+        this.pswd = pswd == null ? null : pswd.trim();
+    }
+
     public String getPswd() {
         return pswd;
     }

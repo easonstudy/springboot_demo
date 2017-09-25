@@ -48,7 +48,7 @@ public class RedisConfig extends CachingConfigurerSupport implements Environment
         JedisPool jedisPool = new JedisPool(jedisPoolConfig, propertyResolver.getProperty("host"),
                   Integer.valueOf(propertyResolver.getProperty("port")),
                   Integer.valueOf(propertyResolver.getProperty("timeout")));
-        logger.info("jedisPool注入成功！！");
+        logger.info("注入jedisPool成功！！");
         return jedisPool;
     }
     /**
