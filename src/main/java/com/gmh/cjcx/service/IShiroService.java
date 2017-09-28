@@ -4,7 +4,7 @@ import com.gmh.cjcx.entity.PermissionInit;
 
 import java.util.List;
 
-public interface IPermissionInitService {
+public interface IShiroService {
 
-    public List<PermissionInit> getPermissionInitList();
+
 }

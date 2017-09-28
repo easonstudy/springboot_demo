@@ -13,4 +13,11 @@
 		<include refid="BASE_COLUMN" />
 		FROM T_permission_init WHERE ID=#{id}
 	</select>
+
+	<select id="getPermissionInitList" resultType="PermissionInit">
+		SELECT
+		<include refid="BASE_COLUMN" />
+		FROM T_permission_init ORDER BY sort
+	</select>
+
 </mapper>

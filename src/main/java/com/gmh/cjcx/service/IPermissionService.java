@@ -12,4 +12,7 @@ public interface IPermissionService {
     Set<String> getRolesName(Integer userId);
     List<Role> getRoleList(Integer userId);
     List<String> getPermissionsName(Integer roleId);
+
+
+    void updatePermission();
 }

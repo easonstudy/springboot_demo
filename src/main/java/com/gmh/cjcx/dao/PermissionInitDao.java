@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface PermissionInitDao {
     PermissionInit findById(Integer id);
+
+    List<PermissionInit> getPermissionInitList();
+
 }
