@@ -41,8 +41,8 @@ public class RequestUtil {
 	}
 
 	/**
-	 * @param url请求URL
-	 * @param headerMap请求Header
+	 * @param url
+	 * @param headerMap
 	 * @return paramMap 请求参数
 	 * @throws Exception
 	 */

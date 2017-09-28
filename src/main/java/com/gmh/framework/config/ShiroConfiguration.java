@@ -5,6 +5,7 @@ import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.filter.authc.LogoutFilter;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
@@ -66,6 +67,7 @@ public class ShiroConfiguration implements EnvironmentAware {
         realm.setCacheManager(ehCacheManager);
         return realm;
     }*/
+
     @Bean(name = "myShiroRealm")
     public MyShiroRealm myShiroRealm(){
         MyShiroRealm realm = new MyShiroRealm();
@@ -79,11 +81,12 @@ public class ShiroConfiguration implements EnvironmentAware {
         RedisManager redisManager = new RedisManager();
         redisManager.setHost(propertyResolver.getProperty("host"));
         redisManager.setPort(Integer.valueOf(propertyResolver.getProperty("port")));
-        redisManager.setExpire(1800);//配置过期时间--30分钟
+        redisManager.setExpire(1800);   //单位秒 配置过期时间--30分钟
         redisManager.setTimeout(Integer.valueOf(propertyResolver.getProperty("timeout")));
         redisManager.setPassword(propertyResolver.getProperty("password"));
         return redisManager;
     }
+
     /**
      * cacheManager 缓存 redis实现
      * @return
@@ -178,11 +181,10 @@ public class ShiroConfiguration implements EnvironmentAware {
         logger.info("注入shiro拦截器工厂类");
 
         Map<String, Filter> filetersMap = new HashMap<String, Filter>();
-
-        /*MyFormAuthenticationFilter myFormAuthenticationFilter = new MyFormAuthenticationFilter();
-        filetersMap.put("authc", myFormAuthenticationFilter);
+        //MyFormAuthenticationFilter myFormAuthenticationFilter = new MyFormAuthenticationFilter();
+        //filetersMap.put("authc", myFormAuthenticationFilter);
         factoryBean.setFilters(filetersMap);
-        logger.info("注入shiro自定义过滤器");*/
+        logger.info("注入shiro自定义Filter");
 
         return factoryBean;
     }
@@ -199,12 +201,12 @@ public class ShiroConfiguration implements EnvironmentAware {
          * org.apache.shiro.web.filter.authc.FormAuthenticationFilter */
         //filterChainMap.put("/tUser", "authc");//输入http://localhost:8080/myEra/tUser会跳到登录页面
         //filterChainMap.put("/tUser/edit/**", "authc,perms[user:edit]");
-        // anon：它对应的过滤器里面是空的,什么都没做,可以理解为不拦截
-        //authc: 所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问
+        //anon:   它对应的过滤器里面是空的,什么都没做,可以理解为不拦截 所有url都都可以匿名访问
+        //authc: 所有url都必须认证通过才可以访问;
         filterChainMap.put("/permission/userInsert", "anon");
         filterChainMap.put("/error", "anon");
-        //filterChainMap.put("/tUser/insert","anon");
-        filterChainMap.put("/gif/getGifCode","anon");
+        filterChainMap.put("/vcode/gif","anon");
+        filterChainMap.put("/logout", "logout");
         filterChainMap.put("/**", "authc");
         //使用记住我可以访问的地址替换上面的，当没有记住我时跳转登录页面，记住我时跳到正常页面
         //filterChainMap.put("/**", "user");

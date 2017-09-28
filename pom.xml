@@ -159,9 +159,14 @@
 			<version>1.0.0</version>
 		</dependency>
 
+        <dependency>
+            <groupId>com.corundumstudio.socketio</groupId>
+            <artifactId>netty-socketio</artifactId>
+            <version>1.7.11</version>
+        </dependency>
 
 
-	</dependencies>
+    </dependencies>
 
 
 	<build>
@@ -169,7 +174,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-
+				<configuration>
+					<fork>true</fork>
+				</configuration>
 				<dependencies>
 					<!-- spring热部署-->
 					<!-- https://mvnrepository.com/artifact/org.springframework/springloaded -->

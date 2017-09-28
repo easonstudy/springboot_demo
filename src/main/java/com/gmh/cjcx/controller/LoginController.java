@@ -10,16 +10,18 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,24 +39,17 @@ public class LoginController {
     private StringRedisTemplate stringRedisTemplate;
 
     //用户登录次数计数  redisKey 前缀
-    private String SHIRO_LOGIN_COUNT = "shiro_login_count_";
+    private String SHIRO_LOGIN_COUNT = "shiro:login:count:";
     //用户登录是否被锁定    一小时 redisKey 前缀
-    private String SHIRO_IS_LOCK = "shiro_is_lock_";
+    private String SHIRO_IS_LOCK = "shiro:login:lock:";
 
 
-    @GetMapping(value = "/login")
+    @GetMapping(value = "login")
     public String loginForm(){
         return "/login";
     }
 
-    /*@PostMapping(value = "/login")
-    public String login(@Valid User user, boolean rememberMe, String gifCode,
-                        BindingResult bindingResult, RedirectAttributes redirectAttributes,
-                        HttpServletRequest request, String errMsg){
-        return "/index";
-    }*/
-
-    @PostMapping(value = "/login")
+    @PostMapping(value = "login")
     public String login(@Valid User user, boolean rememberMe, String gifCode,
                         BindingResult bindingResult, RedirectAttributes redirectAttributes){
         if(bindingResult.hasErrors()){
@@ -80,6 +75,7 @@ public class LoginController {
             return "redirect:/login";
         }
         logger.info("进行登录次数验证");
+
         //访问一次，计数一次
         ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
         if ("LOCK".equals(opsForValue.get(SHIRO_IS_LOCK+email))){
@@ -88,7 +84,7 @@ public class LoginController {
             return "redirect:login";
         }
         opsForValue.increment(SHIRO_LOGIN_COUNT+email, 1);
-        //计数大于3时，设置用户被锁定一小时
+        //计数大于5时，设置用户被锁定一小时
         if(Integer.parseInt(opsForValue.get(SHIRO_LOGIN_COUNT+email))>=5){
             opsForValue.set(SHIRO_IS_LOCK+email, "LOCK");
             stringRedisTemplate.expire(SHIRO_IS_LOCK+email, 1, TimeUnit.HOURS);
@@ -137,15 +133,21 @@ public class LoginController {
             session.setAttribute("currentUser",tUser);
             //设置会话的过期时间--ms,默认是30分钟，设置负数表示永不过期
             session.setTimeout(-1000l);
-            return "/index";
+            return "redirect:/index";
         }else{
             token.clear();
-            return "redirect:login";
+            return "redirect:/login";
         }
     }
 
+    @RequestMapping(value="index",method=RequestMethod.GET)
+    public String index(){
+        logger.info("------Index-------");
+        return "/index";
+    }
 
-    @RequestMapping(value="/logout",method=RequestMethod.GET)
+
+    @RequestMapping(value="logout",method=RequestMethod.GET)
     public String logout(RedirectAttributes redirectAttributes ){
         //使用权限管理工具进行用户的退出，跳出登录，给出提示信息
         SecurityUtils.getSubject().logout();
@@ -153,9 +155,9 @@ public class LoginController {
         return "redirect:/login";
     }
 
-    @RequestMapping("/403")
+    @RequestMapping("403")
     public String unauthorizedRole(){
         logger.info("------没有权限-------");
-        return "errorPermission";
+        return "/403";
     }
 }

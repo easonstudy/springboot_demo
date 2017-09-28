@@ -88,9 +88,9 @@ public class RedisConfig extends CachingConfigurerSupport implements Environment
         template.afterPropertiesSet();
         return template;
     }
+
     /**
      * 管理缓存
-     *
      * @param redisTemplate
      * @return
      */

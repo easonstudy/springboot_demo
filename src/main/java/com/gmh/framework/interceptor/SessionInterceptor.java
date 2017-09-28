@@ -1,7 +1,8 @@
-package com.gmh.framework.config;
+package com.gmh.framework.interceptor;
 
 import com.gmh.cjcx.entity.User;
 import com.gmh.cjcx.service.IPermissionService;
+import com.gmh.cjcx.service.IUserService;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -21,16 +22,16 @@ public class SessionInterceptor implements HandlerInterceptor {
     private final Logger logger = Logger.getLogger(SessionInterceptor.class);
 
     @Autowired
-    private IPermissionService permissionService;
+    private IUserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
-        logger.info("---preHandle---");
+        logger.info("preHandle");
         Subject currentUser = SecurityUtils.getSubject();
         //判断用户是通过记住我功能自动登录,此时session失效
         if(!currentUser.isAuthenticated() && currentUser.isRemembered()){
             try {
-                User user = permissionService.findByUserEmail(currentUser.getPrincipals().toString());
+                User user = userService.findByUserEmail(currentUser.getPrincipals().toString());
                 //对密码进行加密后验证
                 UsernamePasswordToken token = new UsernamePasswordToken(user.getEmail(), user.getPswd(),currentUser.isRemembered());
                 //把当前用户放入session

@@ -16,16 +16,16 @@ import javax.servlet.http.HttpSession;
  * Created by sun on 2017-4-6.
  */
 @Controller
-@RequestMapping("gif")
-public class GifCodeController {
+@RequestMapping("vcode")
+public class CodeController {
 
-    private final Logger logger = Logger.getLogger(GifCodeController.class);
+    private final Logger logger = Logger.getLogger(CodeController.class);
 
     /**
      * 获取验证码（Gif版本）
      * @param response
      */
-    @RequestMapping(value="/getGifCode",method= RequestMethod.GET)
+    @RequestMapping(value="/gif",method= RequestMethod.GET)
     public void getGifCode(HttpServletResponse response, HttpServletRequest request){
         try {
             response.setHeader("Pragma", "No-cache");
