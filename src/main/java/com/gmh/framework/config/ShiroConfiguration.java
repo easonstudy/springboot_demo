@@ -1,10 +1,12 @@
 package com.gmh.framework.config;
 
+import com.gmh.cjcx.service.IShiroService;
 import org.apache.log4j.Logger;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.web.filter.authc.LogoutFilter;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
@@ -12,11 +14,13 @@ import org.apache.shiro.web.servlet.SimpleCookie;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.servlet.Filter;
@@ -42,6 +46,10 @@ public class ShiroConfiguration implements EnvironmentAware {
     public void setEnvironment(Environment env) {
         this.propertyResolver = new RelaxedPropertyResolver(env, "spring.redis.");
     }
+
+    @Autowired
+    IShiroService shiroService;
+
 
     /**
      * ShiroFilterFactoryBean 处理拦截资源文件问题。
@@ -81,7 +89,7 @@ public class ShiroConfiguration implements EnvironmentAware {
         RedisManager redisManager = new RedisManager();
         redisManager.setHost(propertyResolver.getProperty("host"));
         redisManager.setPort(Integer.valueOf(propertyResolver.getProperty("port")));
-        redisManager.setExpire(1800);   //单位秒 配置过期时间--30分钟
+        redisManager.setExpire(300);   //单位秒 配置过期时间--30分钟
         redisManager.setTimeout(Integer.valueOf(propertyResolver.getProperty("timeout")));
         redisManager.setPassword(propertyResolver.getProperty("password"));
         return redisManager;
@@ -147,10 +155,10 @@ public class ShiroConfiguration implements EnvironmentAware {
         securityManager.setRealm(myShiroRealm());
         //用户授权/认证信息Cache, 采用EhCache缓存
         //securityManager.setCacheManager(getEhCacheManager());
-        // 自定义缓存实现 使用redis
+        // 自定义缓存实现 用户授权/认证信息Cache 使用redis
         securityManager.setCacheManager(cacheManager());
         // 自定义session管理 使用redis,注入这个会在退出时报错，好像是因为druid连接池的原因
-        //securityManager.setSessionManager(SessionManager());
+        //securityManager.setSessionManager(sessionManager());
         //注入记住我管理器;
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
@@ -184,6 +192,11 @@ public class ShiroConfiguration implements EnvironmentAware {
         //MyFormAuthenticationFilter myFormAuthenticationFilter = new MyFormAuthenticationFilter();
         //filetersMap.put("authc", myFormAuthenticationFilter);
         factoryBean.setFilters(filetersMap);
+        //自定义拦截器
+        /*Map<String, Filter> filtersMap = new LinkedHashMap<String, Filter>();
+        //限制同一帐号同时在线的个数。
+        filtersMap.put("kickout", kickoutSessionControlFilter());
+        factoryBean.setFilters(filtersMap);*/
         logger.info("注入shiro自定义Filter");
 
         return factoryBean;
@@ -199,19 +212,22 @@ public class ShiroConfiguration implements EnvironmentAware {
         //filterChainMap.put("/**", "user");
         /** authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器
          * org.apache.shiro.web.filter.authc.FormAuthenticationFilter */
-        //filterChainMap.put("/tUser", "authc");//输入http://localhost:8080/myEra/tUser会跳到登录页面
-        //filterChainMap.put("/tUser/edit/**", "authc,perms[user:edit]");
         //anon:   它对应的过滤器里面是空的,什么都没做,可以理解为不拦截 所有url都都可以匿名访问
         //authc: 所有url都必须认证通过才可以访问;
+        //logout: 登出
         filterChainMap.put("/permission/userInsert", "anon");
         filterChainMap.put("/error", "anon");
         filterChainMap.put("/vcode/gif","anon");
         filterChainMap.put("/logout", "logout");
-        filterChainMap.put("/**", "authc");
+        //需要登入才能访问
+        filterChainMap.put("/**", "user");
         //使用记住我可以访问的地址替换上面的，当没有记住我时跳转登录页面，记住我时跳到正常页面
         //filterChainMap.put("/**", "user");
+        //filterChainMap = shiroService.loadFilterChainDefinitions();
+
         factoryBean.setFilterChainDefinitionMap(filterChainMap);
     }
+
 
     /*1.LifecycleBeanPostProcessor，这是个DestructionAwareBeanPostProcessor的子类，负责org.apache.shiro.util.Initializable类型bean的生命周期的，初始化和销毁。主要是AuthorizingRealm类的子类，以及EhCacheManager类。
     2.HashedCredentialsMatcher，这个类是为了对密码进行编码的，防止密码在数据库里明码保存，当然在登陆认证的生活，这个类也负责对form里输入的密码进行编码。

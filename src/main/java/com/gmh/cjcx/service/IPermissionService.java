@@ -14,5 +14,5 @@ public interface IPermissionService {
     List<String> getPermissionsName(Integer roleId);
 
 
-    void updatePermission();
+
 }

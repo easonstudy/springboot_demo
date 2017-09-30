@@ -8,6 +8,7 @@ import com.gmh.cjcx.entity.User;
 import com.gmh.cjcx.service.IPermissionService;
 import com.gmh.cjcx.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;

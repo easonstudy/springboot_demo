@@ -47,11 +47,5 @@ public class PermissionService implements IPermissionService {
         return permissionDao.getPermissionsName(roleId);
     }
 
-    /**
-     * 权限更新
-     */
-    @Override
-    public void updatePermission() {
 
-    }
 }

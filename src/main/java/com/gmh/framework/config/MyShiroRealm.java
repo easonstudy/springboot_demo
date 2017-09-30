@@ -3,16 +3,19 @@ package com.gmh.framework.config;
 import com.gmh.cjcx.entity.Role;
 import com.gmh.cjcx.entity.User;
 import com.gmh.cjcx.service.IPermissionService;
+import com.gmh.framework.security.CustomCredentialsMatcher;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -39,7 +42,10 @@ public class MyShiroRealm extends AuthorizingRealm {
                 throw new DisabledAccountException();
             }
             // 若存在，将此用户存放到登录认证info中，无需自己做密码对比，Shiro会为我们进行密码对比校验
-            return new SimpleAuthenticationInfo(user.getEmail(), user.getPswd(), getName());
+            logger.info("当前的密码:" + user.getPswd());
+            SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user.getEmail(), user.getPswd(), getName());
+            //info.setCredentials(ByteSource.Util.bytes(user.getPswd()));
+            return info;
         }
         return null;
     }

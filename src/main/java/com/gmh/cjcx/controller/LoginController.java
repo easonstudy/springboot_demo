@@ -39,9 +39,9 @@ public class LoginController {
     private StringRedisTemplate stringRedisTemplate;
 
     //用户登录次数计数  redisKey 前缀
-    private String SHIRO_LOGIN_COUNT = "shiro:login:count:";
+    private String SHIRO_LOGIN_COUNT = "login:count:";
     //用户登录是否被锁定    一小时 redisKey 前缀
-    private String SHIRO_IS_LOCK = "shiro:login:lock:";
+    private String SHIRO_IS_LOCK = "login:lock:";
 
 
     @GetMapping(value = "login")
@@ -144,6 +144,12 @@ public class LoginController {
     public String index(){
         logger.info("------Index-------");
         return "/index";
+    }
+
+    @RequestMapping(value="kickout",method=RequestMethod.GET)
+    public String kickout(){
+        logger.info("------Index-------");
+        return "/kickout";
     }
 
 
